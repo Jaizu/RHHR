@@ -45,3 +45,13 @@ nav:
     url: /about
 
 paginate_path: "/baseurl/page:num/"
+
+defaults:
+  - scope:
+      path: "_posts/resource"
+    values:
+      type: "resource"
+  - scope:
+      path: "_posts/fangame"
+    values:
+      type: "fangame"

@@ -2,32 +2,53 @@
 layout: default
 title: Home
 ---
+{% assign resources = site.posts | where:"type", "resource" %}
+{% assign fangames = site.posts | where:"type", "fangame" %}
 
-<div class="posts">
-  {% for post in paginator.posts %}
-  <article class="post">
-    <h1 class="post-title">
-      <a href="{{ post.url | relative_url }}">
-        {{ post.title }}
-      </a>
-    </h1>
+<div class="index_1">
+  <p class="index_latest_updates">Latest updates</p>
 
-    <time datetime="{{ post.date | date_to_xmlschema }}" class="post-date">{{ post.date | date_to_string }}</time>
+  <div class="box shadow" style="width: 390px;">
+    <div class="box_header">
+      <h3>Resources</h3>
+    </div>
+    <ul class="index_ul">
+      {% for post in resources %}
+      <li>
+        <div class="index_tag {{ post.tag }}">{{ post.tag }}</div>
+        <a href="{{ site.url }}{{site.baseurl}}{{ post.url }}">{{ post.title }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
 
-    {{ post.content }}
-  </article>
-  {% endfor %}
+
+  <div class="box shadow" style="width: 390px;">
+    <div class="box_header">
+      <h3>Fangames</h3>
+    </div>
+
+    <ul class="index_ul">
+      {% for post in fangames %}
+      <li>
+      <a href="{{ site.url }}{{site.baseurl}}{{ post.url }}">{{ post.title }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
 </div>
+<br>
 
-<div class="pagination">
-  {% if paginator.next_page %}
-    <a class="pagination-item older" href="{{ paginator.next_page_path | relative_url }}">Older</a>
-  {% else %}
-    <span class="pagination-item older">Older</span>
-  {% endif %}
-  {% if paginator.previous_page %}
-  <a class="pagination-item newer" href="{{ paginator.previous_page_path | relative_url }}">Newer</a>
-  {% else %}
-    <span class="pagination-item newer">Newer</span>
-  {% endif %}
+<div class="index_1">
+  <p class="index_latest_updates">What are you looking for?</p>
+
+  <div class="box shadow" style="width: 250px;padding: 10px;text-align: center;font-weight: bold;">
+    <a>Resources</a>
+  </div>
+  <div class="box shadow" style="width: 250px;padding: 10px;text-align: center;font-weight: bold;">
+    <a>Fangames</a>
+  </div>
+  <div class="box shadow" style="width: 250px;padding: 10px;text-align: center;font-weight: bold;">
+    <a>Contributing</a>
+  </div>
 </div>
