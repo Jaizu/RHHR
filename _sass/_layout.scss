@@ -7,11 +7,14 @@
   width: 900px;
   margin-right: auto;
   margin-left: auto;
-  padding-right: 30px;
-  padding-left: 30px;
+}
+
+.content {
+  padding: 30px;
 }
 
 footer {
-  margin-top: var(--spacer-3);
-  margin-bottom: var(--spacer-3);
+  background: #333;
+  color: white;
+  padding: 20px 30px;
 }

@@ -9,4 +9,81 @@ link: https://github.com/ghoulslash/pokeemerald/tree/follow_me
 updated-date: Mar 29, 2022
 ---
 
-<p>This feature was ported from the CFRU, allowing you to add NPC followers to the player.</p>
+<p>This feature was ported from the&nbsp;<a href="https://www.pokecommunity.com/showthread.php?t=425447">CFRU</a>, allowing you to add NPC followers to the player.<br /><br />
+
+<img src="https://i.imgur.com/sHoHjxh.gif" alt="" border="0" />
+<img src="https://i.imgur.com/TiFG6Zb.gif" alt="" border="0" />
+<img src="https://i.imgur.com/IhjXL3B.gif" alt="" border="0" />
+<img src="https://i.imgur.com/jRnha2N.gif" alt="" border="0" />
+<br />
+<br />
+<span style="font-size: large;"><strong>Setup</strong></span></p>
+<ol>
+</li>
+<li>Update&nbsp;<em>gFollowerAlternateSprites</em>&nbsp;with graphics Ids for your followers. The general structure is:
+<ul>
+<li>normalId - the graphics Id of the regular NPC (just standing or walking around or whatever)</li>
+<li>machBikeId - the mach bike sprites (if applicable - see Step 4)</li>
+<li>acroBikeId - the acro bike sprites (if applicable - see Step 4)</li>
+<li>surfId - surfing sprites graphics Id (if applicable - see Step 4)</li>
+<li>underwaterId - diving sprites graphics Id (if applicable - see Step 4)</li>
+<li>Example - May sprite in the GIFs:<br />
+<pre class="bbcodeblock">{
+    .normalId = OBJ_EVENT_GFX_RIVAL_MAY_NORMAL,
+    .machBikeId = OBJ_EVENT_GFX_RIVAL_MAY_MACH_BIKE,
+    .acroBikeId = OBJ_EVENT_GFX_RIVAL_MAY_ACRO_BIKE,
+    .surfId = OBJ_EVENT_GFX_RIVAL_MAY_SURFING,
+    .underwaterId = OBJ_EVENT_GFX_MAY_UNDERWATER,
+},
+</pre>
+</li>
+</ul>
+</li>
+<li>If you have&nbsp;<a href="https://www.pokecommunity.com/showthread.php?p=10166640#post10166640">sideways stairs</a>&nbsp;implemented, set SIDEWAYS_STAIRS_IMPLEMENTED to TRUE in include/constants/global.h</li>
+<li>Four new scripting commands are added: (see&nbsp;<em>asm/macros/event.inc</em>&nbsp;for more info)
+<ul>
+<li>setfollower - sets up an NPC to follow you. Takes a byte argument for the NPCs local Id and 2 bytes for the follower flags (see step 4)</li>
+<li>destroyfollower - stop the NPC from following you.</li>
+<li>facefollower - player and follower face one another</li>
+<li>checkfollower - checks if you have a follower, returns the result to VAR_RESULT</li>
+</ul>
+</li>
+<li>Follower Flags: (see&nbsp;<em>include/constants/follow_me.h</em>)
+<ul>
+<li>FOLLOWER_FLAG_HAS_RUNNING_FRAMES - follower has specific frames used when running. Otherwise they will walk fast behind you when you run.</li>
+<li>FOLLOWER_FLAG_CAN_BIKE - follower has mach/acro biking frames in&nbsp;<em>gFollowerAlternateSprites</em>. If not set, you cannot bike.</li>
+<li>FOLLOWER_FLAG_CAN_LEAVE_ROUTE - you can use teleport / dig / fly / etc. The follower will follow you when you use these field moves. The follower can travel between routes even if not set.</li>
+<li>FOLLOWER_FLAG_CAN_SURF - the follower has surfing graphics defined in&nbsp;<em>gFollowerAlternateSprites</em>. Otherwise, you cannot Surf.</li>
+<li>FOLLOWER_FLAG_CAN_WATERFALL - the follower can follow you up waterfalls. Otherwise, you cannot use Waterfall.</li>
+<li>FOLLOWER_FLAG_CAN_DIVE - the follower has a diving graphics Id defined in&nbsp;<em>gFollowerAlternateSprites</em>. It will follow you underwater. Otherwise you cannot use Dive.</li>
+<li>FOLLOWER_FLAG_CAN_ROCK_CLIMB - unused (no rock climb in the base game), but similar to the previous field move defines.</li>
+<li>FOLLOWER_FLAG_CLEAR_ON_WHITE_OUT - remove the follower if the player whites out.</li>
+<li>FOLLOWER_FLAG_CUSTOM_FOLLOW_SCRIPT - a unique script is run when you talk to the follower whilst they are following you. Requires loading the script (via&nbsp;<em>loadword</em>) prior to the command&nbsp;<em>setfollower</em>).</li>
+</ul>
+</li>
+</ol>
+<p><br />For example, here's an example for adding a follower with a new script:</p>
+<pre class="bbcodeblock code-syntax-auto hljs sql" dir="ltr">SetFollower::
+    <span class="hljs-operator"><span class="hljs-keyword">lock</span>
+    faceplayer
+    loadword <span class="hljs-number">0</span> NewScript
+    setfollower <span class="hljs-number">1</span> <span class="hljs-number">0x100</span>   @ cause NPC (<span class="hljs-keyword">local</span> <span class="hljs-keyword">ID</span> = <span class="hljs-number">1</span>) <span class="hljs-keyword">to</span> follow you <span class="hljs-keyword">with</span> a custom <span class="hljs-keyword">following</span> script
+    <span class="hljs-keyword">release</span>
+    <span class="hljs-keyword">end</span>
+
+NewScript:
+    msgbox FollowYou MSGBOX_SIGN
+    <span class="hljs-keyword">end</span>
+FollowYou:
+    .<span class="hljs-keyword">string</span> <span class="hljs-string">"I'll keep following you!$"</span></span></pre>
+<p><img src="https://i.imgur.com/USZcFgh.gif" alt="" border="0" /><br /><br />Finally, you can also&nbsp;<strong>use the followers in scripts</strong>&nbsp;using the local Id, OBJ_EVENT_ID_FOLLOWER like so:</p>
+<pre class="bbcodeblock code-syntax-auto hljs cpp" dir="ltr">EventScript_Test::
+    lock
+    turnobject OBJ_EVENT_ID_FOLLOWER, DIR_NORTH
+    @ etc</pre>
+<p><strong>Known Issues:</strong></p>
+<ul>
+<li>If you take a follower into a map with the maximum number of event objects, your follower may inherit a different palette and/or get directionally confused. Fortunately, since we are using decomps, we can easily increase the value of OBJECT_EVENTS_COUNT. This doesn't resolve the 16 palette gba limit, though.</li>
+<li>Sometimes the follower's surf blob won't appear until a menu is entered/exited</li>
+</ul>
+<p><br /><strong>Credits:</strong><br />Skeli / Complete Fire Red Upgrade<br />Touched for original source</p>
