@@ -5,6 +5,7 @@
 .container {
   background: white;
   width: 900px;
+  max-width: 100%; // Support for phone users
   margin-right: auto;
   margin-left: auto;
 }
